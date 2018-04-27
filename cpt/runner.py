@@ -170,7 +170,9 @@ class DockerCreateRunner(object):
         with self.printer.foldable_output("docker pull"):
             ret = self._runner("%s docker pull %s" % (self._sudo_docker_command, self._docker_image))
             if ret != 0:
-                raise Exception("Error pulling the image: %s" % self._docker_image)
+                # do not raise exception if failed to pull image - we still may use local image if connection to the
+                # server was broken, or image was removed/renamed on server, or whatever
+                self.printer.print_message("WARNING: Error pulling the image: %s" % self._docker_image)
 
     def get_env_vars(self):
         ret = {key: value for key, value in os.environ.items() if key.startswith("CONAN_") and
